@@ -1,2 +1,3 @@
-# Application
-This Angular project is a fork of the SMART Cancer Navigator (https://smart-cancer-navigator.github.io) which highlights clinical trials and includes matching functionality instead of gene/variant data.  
+# Sync 4 Clinical Trials
+
+This SMART on FHIR based application (forked from the SMART Cancer Navigator — https://smart-cancer-navigator.github.io) matches patients to various clinical trials found on NIH's CTRP page.  
