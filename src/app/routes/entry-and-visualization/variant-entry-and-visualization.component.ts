@@ -4,7 +4,6 @@ import { SMARTClient } from "../../smart-initialization/smart-reference.service"
 import { VariantSelectorService } from "./variant-selector/variant-selector.service";
 import { trigger, state, style, animate, transition } from "@angular/animations";
 import {Router} from "@angular/router";
-import {FeedbackFormModalComponent} from "../feedback-form/feedback-form-modal.component";
 import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
 import {isNullOrUndefined} from "util";
 
@@ -82,13 +81,6 @@ class VariantWrapper {
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Review form question -->
-    <div id="askForReviewDiv" *ngIf="userInteractionPoints >= 3 && askForReview">
-      <a href="javascript:void(0)" (click)="openFeedbackForm()">
-        <ngb-alert [type]="'primary'" (close)="askForReview = false">Please review our service!</ngb-alert>
-      </a>
     </div>
   `,
   styles: [`
@@ -265,10 +257,6 @@ class VariantWrapper {
 export class VariantEntryAndVisualizationComponent implements OnInit {
   constructor (private selectorService: VariantSelectorService, private router: Router, private modalService: NgbModal) {}
 
-  // This is what we're using to determine whether the user is worthy to rate our service (has interacted enough with the service).
-  userInteractionPoints: number = 0;
-  askForReview: boolean = true;
-
   variants: VariantWrapper[] = [];
 
   offerToLinkToEHRInstructions = true;
@@ -378,8 +366,6 @@ export class VariantEntryAndVisualizationComponent implements OnInit {
     if (this.variants.length === indexInQuestion + 1) {
       this.addRow();
     }
-
-    this.userInteractionPoints++;
   }
   removeRow(index: number) {
     const variantToRemove = this.variants[index].variant;
@@ -391,8 +377,6 @@ export class VariantEntryAndVisualizationComponent implements OnInit {
     }
 
     this.removeEHRVariant(variantToRemove);
-
-    this.userInteractionPoints++;
   }
 
   routeToInstructions() {
@@ -409,11 +393,6 @@ export class VariantEntryAndVisualizationComponent implements OnInit {
         }
       }
     }
-  }
-
-  openFeedbackForm() {
-    this.modalService.open(FeedbackFormModalComponent, {size: "lg"});
-    this.askForReview = false;
   }
 
   // Remove and save EHR variants.

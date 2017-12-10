@@ -7,20 +7,14 @@ import {NavigationEnd, Router} from "@angular/router";
     <div id="greyBackground"></div>
 
     <div id="container">
-      <img src="/assets/entry-and-visualization/app-logo.png">
+      <img src="/assets/S4CTWhiteLogo.png">
 
       <div id="routingOptions">
         <div class="routeOption {{currentRoute === '/home' ? 'selectedRoute' : 'unselectedRoute'}}" (click)="routeTo('home')">
-          <p>Home</p>
-        </div>
-        <div class="routeOption {{currentRoute === '/team' ? 'selectedRoute' : 'unselectedRoute'}}" (click)="routeTo('team')">
-          <p>Team</p>
+          <p>About</p>
         </div>
         <div class="routeOption {{currentRoute === '/ehr-link' ? 'selectedRoute' : 'unselectedRoute'}}" (click)="routeTo('ehr-link')">
           <p>EHR Link</p>
-        </div>
-        <div class="routeOption {{currentRoute === '/db-analysis' ? 'selectedRoute' : 'unselectedRoute'}}" (click)="routeTo('db-analysis')">
-          <p>DB Analysis</p>
         </div>
         <div style="width: 1px; height: 76px; float: left; background-color: #a4a4a4; margin: 2px 3px;">
         </div>
@@ -39,32 +33,32 @@ import {NavigationEnd, Router} from "@angular/router";
     #greyBackground {
       width: 100vw;
       height: 100vh;
-      background-color: #eeeeee;
+      background-color: rgba(17, 17, 17, 0.96);
       position: fixed;
       z-index: -50;
     }
 
     #container {
-      background-color: white;
+      background-color: #2f2f2f;
       width: 100%;
 
       padding-left: 30px;
 
-      box-shadow: 0 2px 4px #b4b4b4;
+      box-shadow: 0 2px 4px #1f1f1f;
 
       overflow: hidden;
     }
 
     #container img {
-      height: 40px;
+      height: 70px;
       width: auto;
-      margin-top: 20px;
-      margin-bottom: 20px;
+      margin-top: 5px;
+      margin-bottom: 5px;
       float: left;
     }
 
     #routingOptions {
-      min-width: 500px;
+      min-width: 300px;
       height: 100%;
       overflow: hidden;
       float: right;
@@ -76,7 +70,7 @@ import {NavigationEnd, Router} from "@angular/router";
 
       text-align: center;
       height: 60px;
-      width: calc(100% / 5 - 8px); /* +1 px for each for border div */
+      width: calc(100% / 3 - 9px); /* +1 px for each for border div */
       margin: 10px 3px;
 
       display: flex;
@@ -88,20 +82,21 @@ import {NavigationEnd, Router} from "@angular/router";
     }
 
     .unselectedRoute {
-      background-color: white;
+      background-color: #2f2f2f;
+      color: white;
     }
 
     .unselectedRoute:hover {
-      background-color: #dbdbdb;
+      background-color: #292929;
     }
 
     .unselectedRoute:active {
-      background-color: #cbcbcb;
+      background-color: #3c3c3c;
     }
 
     .selectedRoute {
-      background-color: #27384f;
-      color: white;
+      background-color: #adadad;
+      color: black;
     }
   `]
 })

@@ -20,13 +20,11 @@ import { GeneInformationComponent } from "./routes/entry-and-visualization/varia
 import { VariantInformationComponent } from "./routes/entry-and-visualization/variant-visualization/variant/variant-information.component";
 import { VariantVisualizationComponent } from "./routes/entry-and-visualization/variant-visualization/variant-visualization.component";
 import { EHRInstructionsComponent } from "./routes/ehr-instructions/ehr-instructions.component";
-import { FeedbackFormModalComponent } from "./routes/feedback-form/feedback-form-modal.component";
 import { HeaderComponent } from "./universal-components/header.component";
 import { ClassificationsModalComponent } from "./routes/entry-and-visualization/variant-visualization/variant/classifications-modal.component";
 import { VariantEntryAndVisualizationComponent } from "./routes/entry-and-visualization/variant-entry-and-visualization.component";
 import { LandingPageComponent } from "./routes/home/home.component";
 import { GithubForkUsComponent } from "./universal-components/github-fork-us.component";
-import { TeamComponent } from "./routes/team/team.component";
 
 // Services
 import { SMARTReferenceService } from "./smart-initialization/smart-reference.service";
@@ -66,14 +64,11 @@ import { DBAnalysisComponent } from "./routes/db-analysis/db-analysis.component"
     EHRInstructionsComponent,
     LandingPageComponent,
     GithubForkUsComponent,
-    FeedbackFormModalComponent,
-    TeamComponent,
     DBAnalysisComponent
   ],
   entryComponents: [
     DrugDetailsModalComponent, // Since it enters later on in the flow.
-    ClassificationsModalComponent,
-    FeedbackFormModalComponent
+    ClassificationsModalComponent
   ],
   providers: [
     SMARTReferenceService,

@@ -11,21 +11,9 @@ import { Router } from "@angular/router";
     <div class="infoCard">
       <div class="cardContent">
         <div>
-          <h1 class="thinFont1">The Issue</h1>
+          <h1 class="thinFont1">Project Purpose</h1>
           <hr>
-          <p class="thinFont1">
-            In a typical genomic non-SMART Cancer Navigator workflow, oncologists will prescribe a genomic analysis of a patient with a recurrent or metastatic tumor. Next, the genomics laboratory returns an unstructured narrative report relating a set of genes and the variants found in that set. Typically scanned into EHRs as PDF files, these reports persist as irregular unstructured documents of varying lengths. While some reports may be more than 20 pages in length – including characterizations of variants and gene abnormalities, potential targeted therapies, and relevant clinical trial info – others may be brief and without much interpretation. Facing a lack of clear actionability, potential biases in the curation of the reports, and outdated information, oncologists typically access and query several knowledge bases to obtain more comprehensive, up-to-date disease-gene-variant information. Therefore, oncologists must reenter patient data every time they wish to query a knowledge base. Inconsistencies among knowledge bases (i.e. differences in querying syntax, GUIs, APIs, etc.) thus lead to inconveniency and inefficiency.</p>
-        </div>
-        <div>
-          <h1 class="thinFont1">SMART Cancer Navigator's Approach</h1>
-          <hr>
-          <p class="thinFont1">The SMART Cancer Navigator app securely links patient-specific data from EHRs and genomics laboratories to multiple knowledge bases for interpretation and validation. Through the built-in feedback functionality, meaningful responses regarding the usability and efficacy of the app are conveyed to the designers.
-          </p>
-        </div>
-      </div>
-      <div class="cardImage">
-        <div>
-          <img src="/assets/landing-page/app-content.png">
+          <p class="thinFont1">Matching patients with the clinical trials that are most appropriate to their genome and situation has long since been one of the key components in the success of such trials.  What if it were possible to accomplish this automatically?  We plan to accomplish this using the Sync4Science initiative and SMART on FHIR.</p>
         </div>
       </div>
     </div>
@@ -38,7 +26,6 @@ import { Router } from "@angular/router";
 
     .cardContent {
       float: left;
-      width: 70%;
     }
 
     .cardImage {
@@ -48,15 +35,16 @@ import { Router } from "@angular/router";
       max-width: 100%;
     }
 
-    .cardImage>div, .cardContent>div {
+    .cardImage > div, .cardContent > div {
       float: left;
-      background-color: white;
-      box-shadow: 1px 3px #d5d5d5;
-      border: 1px solid #d1d1d1;
+      background-color: #393939;
+      box-shadow: 1px 3px #242424;
+      border: 1px solid #292929;
+      color: white;
       padding: 15px;
       margin: 7px 3px;
     }
-    
+
     .cardImage img {
       width: 100%;
       height: auto;
@@ -67,8 +55,4 @@ import { Router } from "@angular/router";
 })
 export class LandingPageComponent {
   constructor (private router: Router) {}
-
-  navigateToVisualization() {
-    this.router.navigate(["/app"]);
-  }
 }
