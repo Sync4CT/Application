@@ -95,7 +95,7 @@ import {NavigationEnd, Router} from "@angular/router";
     }
 
     .selectedRoute {
-      background-color: #adadad;
+      background-color: white;
       color: black;
     }
   `]

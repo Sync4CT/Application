@@ -32,7 +32,7 @@ import {isNullOrUndefined} from "util";
       </div>
     </div>
     
-    <table class="table table-bordered" style="background-color: white;">
+    <table class="table table-hover table-bordered" style="background-color: white;">
       <thead>
       <tr>
         <th>Clinical Trial ID</th>
@@ -45,7 +45,7 @@ import {isNullOrUndefined} from "util";
       <tbody>
       <ng-container *ngIf="clinicalTrials.length >= 0" >
         <tr *ngFor="let clinicalTrial of clinicalTrials" class="variantRow">
-          <td>{{clinicalTrial.nci_id}}</td>
+          <td (click)="linkTo('https://www.cancer.gov/about-cancer/treatment/clinical-trials/search/v?id=' + clinicalTrial.nci_id)">{{clinicalTrial.nci_id}}</td>
           <td>{{clinicalTrial.phase}}</td>
           <td>{{clinicalTrial.brief_title}}</td>
           <td>{{clinicalTrial.drugsToString()}}</td>
@@ -123,5 +123,10 @@ export class ClinicalTrialsSearchComponent
     console.log("Would now search with " + searchString);
 
     this.clinicalTrialsService.searchClinicalTrials(searchString).subscribe(results => this.clinicalTrials = results);
+  }
+
+  linkTo(link: string): void
+  {
+    window.location.href = link;
   }
 }
