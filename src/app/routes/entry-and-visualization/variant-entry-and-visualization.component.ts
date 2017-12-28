@@ -3,11 +3,12 @@ import { Variant } from "./genomic-data";
 import { SMARTClient } from "../../smart-initialization/smart-reference.service";
 import { VariantSelectorService } from "./variant-selector/variant-selector.service";
 import { trigger, state, style, animate, transition } from "@angular/animations";
-import {Router} from "@angular/router";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {isNullOrUndefined} from "util";
+import { Router } from "@angular/router";
+import { isNullOrUndefined } from "util";
+import {Patient} from "./patient/patient";
 
-class VariantWrapper {
+export class VariantWrapper
+{
   constructor(_index: number, _variant: Variant) {
     this.index = _index;
     this.variant = _variant;
@@ -33,22 +34,26 @@ class VariantWrapper {
       <div id="suggestEHRLink" *ngIf="offerToLinkToEHRInstructions">
         <div id="suggestions">
           <img src="/assets/entry-and-visualization/info-icon.png">
-          <p class="thinFont1">You don't seem to be connected to an EHR! <a href="javascript:void(0)" (click)="routeToInstructions()">Learn how here.</a></p>
+          <p class="thinFont1">You don't seem to be connected to an EHR! <a href="javascript:void(0)"
+                                                                            (click)="routeToInstructions()">Learn how
+            here.</a></p>
         </div>
         <button class="btn btn-danger" (click)="offerToLinkToEHRInstructions = false">X</button>
       </div>
 
       <!-- If an EHR link is detected -->
-      <div id="patientInfo" *ngIf="patientExists" [style.background-color]="patientObject['gender'] === 'male' ? '#27384f' : '#ff45f7'">
-        <img [src]="patientObject['gender'] === 'male' ? '/assets/entry-and-visualization/male-icon.png' : '/assets/entry-and-visualization/female-icon.png'">
+      <div id="patientInfo" *ngIf="patient !== null"
+           [style.background-color]="patient.gender === 'male' ? '#27384f' : '#ff45f7'">
+        <img
+          [src]="patient.gender === 'male' ? '/assets/entry-and-visualization/male-icon.png' : '/assets/entry-and-visualization/female-icon.png'">
 
         <!-- Patient Details -->
         <p style="color: white">
-          <b>Name: </b> {{patientObject['name'][0].given[0]}} {{patientObject['name'][0].family}} | 
-          <b>{{patientObject['active'] ? 'Lives in' : 'Lived in'}}:</b> {{patientObject['address'][0].country}} | <b>Age:</b> {{patientAge}} | 
-          <b>Condition:</b> 
+          <b>Name: </b> {{patient.name}} |
+          <b>{{patient.alive ? 'Lives in' : 'Lived in'}}:</b> {{patient.country}} | <b>Age:</b> {{patient.age}} |
+          <b>Condition:</b>
           <select style="font-size: 15px;">
-            <option *ngFor="let condition of patientConditions">{{condition}}</option>
+            <option *ngFor="let condition of patient.conditions">{{condition}}</option>
           </select>
         </p>
 
@@ -61,26 +66,45 @@ class VariantWrapper {
       </div>
     </div>
 
-    <div id="variantVisualizations">
-      <div class="variantWrapper" *ngFor="let variant of variants; let i = index">
-        <div class="variantSelector">
-          <div [style.width]="i === variants.length - 1 ? '100%' : 'calc(100% - 38px)'">
-            <variant-selector [ngModel]="variant.variant"
-                              (ngModelChange)="variant.variant = $event; addRowMaybe(i); saveEHRVariant(variant);"></variant-selector>
-          </div>
-          <button class="removeRowButton btn btn-danger" (click)="removeRow(i)" *ngIf="i !== variants.length - 1">X
-          </button>
-        </div>
-        <div>
-          <div class="visualizationContent" [@drawerAnimation]="variant.drawerState">
-            <variant-visualization [(ngModel)]="variant.variant"></variant-visualization>
-          </div>
-          <div *ngIf="variant.variant !== undefined && variant.variant !== null" class="informationToggle"
-               (click)="variant.toggleDrawer()">
-            <img src="/assets/entry-and-visualization/dropdown.svg">
-          </div>
-        </div>
-      </div>
+    <div id="contentWrapper">
+      <ngb-tabset>
+
+        <ngb-tab title="Clinical Trial Search">
+          <ng-template ngbTabContent>
+            <clinical-trials-search [patient]="patient" [variants]="variants"></clinical-trials-search>
+          </ng-template>
+        </ngb-tab>
+
+        <ngb-tab title="Edit Associated Variants">
+          <ng-template ngbTabContent>
+
+            <!-- Variant Visualizations -->
+            <div id="variantVisualizations">
+              <div class="variantWrapper" *ngFor="let variant of variants; let i = index">
+                <div class="variantSelector">
+                  <div [style.width]="i === variants.length - 1 ? '100%' : 'calc(100% - 38px)'">
+                    <variant-selector [ngModel]="variant.variant"
+                                      (ngModelChange)="variant.variant = $event; addRowMaybe(i); saveEHRVariant(variant);"></variant-selector>
+                  </div>
+                  <button class="removeRowButton btn btn-danger" (click)="removeRow(i)"
+                          *ngIf="i !== variants.length - 1">X
+                  </button>
+                </div>
+                <div>
+                  <div class="visualizationContent" [@drawerAnimation]="variant.drawerState">
+                    <variant-visualization [(ngModel)]="variant.variant"></variant-visualization>
+                  </div>
+                  <div *ngIf="variant.variant !== undefined && variant.variant !== null" class="informationToggle"
+                       (click)="variant.toggleDrawer()">
+                    <img src="/assets/entry-and-visualization/dropdown.svg">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </ngb-tab>
+
+      </ngb-tabset>
     </div>
   `,
   styles: [`
@@ -165,7 +189,7 @@ class VariantWrapper {
       font-size: 20px;
       color: black;
     }
-    
+
     #autosyncToggle {
       display: flex;
       align-items: center;
@@ -183,12 +207,17 @@ class VariantWrapper {
       width: 100%;
     }
 
-    #variantVisualizations {
-      padding: 15px;
+    #contentWrapper {
+      background-color: white;
+      border-radius: 5px;
       margin-top: 2%;
       margin-left: 4%;
       margin-right: 4%;
-      background-color: white;
+    }
+
+    #variantVisualizations {
+      padding: 15px;
+      background-color: #ffffff;
     }
 
     .variantWrapper {
@@ -233,13 +262,6 @@ class VariantWrapper {
       width: 10px;
       margin: 10px;
     }
-
-    #askForReviewDiv {
-      display: block;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-    }
   `],
   animations: [
     trigger("drawerAnimation", [
@@ -254,42 +276,62 @@ class VariantWrapper {
     ])
   ]
 })
-export class VariantEntryAndVisualizationComponent implements OnInit {
-  constructor (private selectorService: VariantSelectorService, private router: Router, private modalService: NgbModal) {}
+export class VariantEntryAndVisualizationComponent implements OnInit
+{
+  constructor (private selectorService: VariantSelectorService, private router: Router) {}
 
+  // Variables required in order to get relevant clinical trials.
   variants: VariantWrapper[] = [];
+  patient: Patient = null;
 
+  // Depends on whether we are already linked to the EHR.
   offerToLinkToEHRInstructions = true;
-  patientExists = false;
-  patientObject: Object = null;
-  patientAge: number = -1;
-  patientConditions: string[] = [];
-
-  // Toggled by the user depending on whether they want to sync to the EHR their changes right away (as soon as they make them)
   autosync: boolean = true;
 
-  ngOnInit() {
+  /**
+   * Once initialized, we'll init the Patient, his/her conditions, and everything else that we need prior to allowing
+   * user input.
+   */
+  ngOnInit()
+  {
+    // Add a new variant.
     this.addRow();
 
     // As soon as the smart client is loaded from the SMART JS library, this creates the patient info header and populates the patient variants.
-    SMARTClient.subscribe(smartClient => {
-      if (smartClient === null) {
+    SMARTClient.subscribe(smartClient =>
+    {
+      // Don't do anything if we aren't provided a SMART on FHIR client.
+      if (smartClient === null)
         return;
-      }
 
       this.offerToLinkToEHRInstructions = false;
 
       // Get all patient information.
-      smartClient.patient.read().then(p => {
-        console.log("Patient read is ", p);
-        this.patientObject = p;
-        if (p.birthDate && p.active) {
+      smartClient.patient.read().then(p =>
+      {
+        // Raw JSON for the patient.
+        console.log("Patient JSON is is ", p);
+        const patientObject: Object = p;
+
+        // Figure out patient age.
+        let patientAge = -1;
+        if (p.birthDate && p.active)
+        {
           const birthDateValues = p.birthDate.split("-");
           const timeDiff = Math.abs(Date.now() - new Date(parseInt(birthDateValues[0]), parseInt(birthDateValues[1]), parseInt(birthDateValues[2])).getTime());
           // Used Math.floor instead of Math.ceil so 26 years and 140 days would be considered as 26, not 27.
-          this.patientAge = Math.floor((timeDiff / (1000 * 3600 * 24)) / 365);
+          patientAge = Math.floor((timeDiff / (1000 * 3600 * 24)) / 365);
         }
-        this.patientExists = true;
+
+        // Construct the patient object.
+        this.patient = new Patient(
+          patientObject,
+          patientObject["name"][0].given[0] + patientObject["name"][0].family,
+          patientObject["gender"],
+          patientObject["active"],
+          patientAge,
+          patientObject["address"][0].country,
+          []);
       });
 
       // Get all genomic variants attached to this patient.
@@ -297,20 +339,21 @@ export class VariantEntryAndVisualizationComponent implements OnInit {
         .then(results => {
           console.log("Successfully got variants!", results);
 
-          if (!results.data.entry) {
+          if (!results.data.entry)
             return;
-          }
 
-          if (results.data.entry.length > 0) {
+          if (results.data.entry.length > 0)
             this.removeRow(0); // Start at the first index if we find other variants.
-          }
 
           // For every variant.
           let resultIndex = 0;
-          for (const result of results.data.entry) {
+          for (const result of results.data.entry)
+          {
             console.log("Will now add " + result.resource.code.text);
-            this.selectorService.search(result.resource.code.text).subscribe(variants => {
-              if (variants.length === 0) {
+            this.selectorService.search(result.resource.code.text).subscribe(variants =>
+            {
+              if (variants.length === 0)
+              {
                 console.log("NOT GOOD: Couldn't find any search results for " + result.resource.code.text);
                 return;
               }
@@ -344,7 +387,7 @@ export class VariantEntryAndVisualizationComponent implements OnInit {
               if (!isNullOrUndefined(entry.resource)) {
                 if (!isNullOrUndefined(entry.resource.code)) {
                   if (!isNullOrUndefined(entry.resource.code.text)) {
-                    this.patientConditions.push(entry.resource.code.text);
+                    this.patient.conditions.push(entry.resource.code.text);
                     console.log("Added " + entry.resource.code.text);
                   }
                 }

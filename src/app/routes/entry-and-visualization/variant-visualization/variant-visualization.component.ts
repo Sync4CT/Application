@@ -28,12 +28,6 @@ export const VISUALIZATION_CONTROL_VALUE_ACCESSOR: any = {
           <variant-information [variant]="currentlySelected"></variant-information>
         </ng-template>
       </ngb-tab>
-
-      <ngb-tab title="Clinical Trials">
-        <ng-template ngbTabContent>
-          <clinical-trials [(ngModel)]="currentlySelected"></clinical-trials>
-        </ng-template>
-      </ngb-tab>
     </ngb-tabset>
   `,
   styles: [`    

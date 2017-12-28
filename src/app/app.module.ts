@@ -14,7 +14,7 @@ import { VariantSelectorComponent } from "./routes/entry-and-visualization/varia
 import { SMARTLaunchComponent } from "./smart-initialization/smart-launch.component";
 import { SMARTTokenReceptionComponent } from "./smart-initialization/smart-token-reception.component";
 import { FilterableSearchComponent } from "./routes/entry-and-visualization/filterable-search/filterable-search.component";
-import { ClinicalTrialsComponent } from "./routes/entry-and-visualization/variant-visualization/clinical-trials/clinical-trials.component";
+import { ClinicalTrialsSearchComponent } from "./routes/entry-and-visualization/clinical-trial-search/clinical-trials-search.component";
 import { DrugDetailsModalComponent } from "./routes/entry-and-visualization/variant-visualization/drugs/drug-details-modal.component";
 import { GeneInformationComponent } from "./routes/entry-and-visualization/variant-visualization/gene/gene-information.component";
 import { VariantInformationComponent } from "./routes/entry-and-visualization/variant-visualization/variant/variant-information.component";
@@ -29,7 +29,7 @@ import { GithubForkUsComponent } from "./universal-components/github-fork-us.com
 // Services
 import { SMARTReferenceService } from "./smart-initialization/smart-reference.service";
 import { MyVariantInfoSearchService } from "./routes/entry-and-visualization/genomic-data-providers/myvariantinfo-search.service";
-import { ClinicalTrialsService } from "./routes/entry-and-visualization/variant-visualization/clinical-trials/clinical-trials.service";
+import { ClinicalTrialsService } from "./routes/entry-and-visualization/clinical-trial-search/clinical-trials.service";
 import { VariantSelectorService } from "./routes/entry-and-visualization/variant-selector/variant-selector.service";
 import { DrugsSearchService } from "./routes/entry-and-visualization/variant-visualization/drugs/drugs-search.service";
 import { MyGeneInfoSearchService } from "./routes/entry-and-visualization/genomic-data-providers/mygeneinfo-search.service";
@@ -57,7 +57,7 @@ import { DBAnalysisComponent } from "./routes/db-analysis/db-analysis.component"
     SMARTTokenReceptionComponent,
     FilterableSearchComponent,
     VariantInformationComponent,
-    ClinicalTrialsComponent,
+    ClinicalTrialsSearchComponent,
     GeneInformationComponent,
     DrugDetailsModalComponent,
     ClassificationsModalComponent,
