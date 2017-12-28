@@ -16,6 +16,10 @@ import {isNullOrUndefined} from "util";
   template: `    
     <div id="searchSelections">
       <div class="searchParam">
+        <p><b>Filters:</b></p>
+      </div>
+      
+      <div class="searchParam">
         <label><input type="checkbox" [(ngModel)]="searchCondition" (ngModelChange)="updateList()"> Conditions</label>
       </div>
       
@@ -29,6 +33,10 @@ import {isNullOrUndefined} from "util";
       
       <div class="searchParam">
         <label><input type="checkbox" [(ngModel)]="searchZipCode" (ngModelChange)="updateList()"> Country</label>
+      </div>
+
+      <div class="searchParam">
+        <button type="button" class="btn-info" style="border-radius: 5px; margin: 0; height: 40px; margin-top: 5px; line-height: 0px;" (click)="updateList()">Quick Refresh</button>
       </div>
     </div>
     
@@ -69,7 +77,7 @@ import {isNullOrUndefined} from "util";
     
     .searchParam {
       height: 100%;
-      width: 25%;
+      width: calc(100% / 6);
       float: left;
       line-height: 50px;
       text-align: center;
