@@ -1,10 +1,14 @@
-import {Component} from "@angular/core";
+import {Component, OnInit} from "@angular/core";
+import {BehaviorSubject} from "rxjs/BehaviorSubject";
+
+// Items can subscribe and act depending on what was decided.
+export let USE_S4S_Sample: BehaviorSubject<Boolean> = new BehaviorSubject<Boolean>(null);
 
 @Component({
   selector: "launch-from-s4s",
   template: `
     <div>
-      <input type="button" class="btn btn-default" (click)="launchFromS4S()" value="Launch from S4S (broken)">
+      <input type="button" class="btn btn-primary" (click)="launchFromS4S()" value="Use S4S Data">
     </div>
   `,
   styles: [`
@@ -23,10 +27,15 @@ import {Component} from "@angular/core";
     }
   `]
 })
-export class LaunchFromS4SComponent
+export class LaunchFromS4SComponent implements OnInit
 {
+  ngOnInit(): void
+  {
+    USE_S4S_Sample.next(false);
+  }
+
   launchFromS4S(): void
   {
-    window.location.href = "https://sync4ct.github.io/smart-launch?launch=1234&iss=https://portal.demo.syncfor.science/api/open-fhir";
+    USE_S4S_Sample.next(true);
   }
 }

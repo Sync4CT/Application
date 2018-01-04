@@ -6,6 +6,8 @@ import { trigger, state, style, animate, transition } from "@angular/animations"
 import { Router } from "@angular/router";
 import { isNullOrUndefined } from "util";
 import {Patient} from "./patient/patient";
+import {USE_S4S_Sample} from "../../universal-components/launch-from-s4s.component";
+import {HttpClient} from "@angular/common/http";
 
 export class VariantWrapper
 {
@@ -277,7 +279,7 @@ export class VariantWrapper
 })
 export class VariantEntryAndVisualizationComponent implements OnInit
 {
-  constructor (private selectorService: VariantSelectorService, private router: Router) {}
+  constructor (private selectorService: VariantSelectorService, private router: Router, private http: HttpClient) {}
 
   // Variables required in order to get relevant clinical trials.
   variants: VariantWrapper[] = [];
@@ -306,98 +308,153 @@ export class VariantEntryAndVisualizationComponent implements OnInit
       this.offerToLinkToEHRInstructions = false;
 
       // Get all patient information.
-      smartClient.patient.read().then(p =>
-      {
-        // Raw JSON for the patient.
-        console.log("Patient JSON is is ", p);
-        const patientObject: Object = p;
-
-        // Figure out patient age.
-        let patientAge = -1;
-        if (p.birthDate && p.active)
-        {
-          const birthDateValues = p.birthDate.split("-");
-          const timeDiff = Math.abs(Date.now() - new Date(parseInt(birthDateValues[0]), parseInt(birthDateValues[1]), parseInt(birthDateValues[2])).getTime());
-          // Used Math.floor instead of Math.ceil so 26 years and 140 days would be considered as 26, not 27.
-          patientAge = Math.floor((timeDiff / (1000 * 3600 * 24)) / 365);
-        }
-
-        // Construct the patient object.
-        this.patient = new Patient(
-          patientObject,
-          patientObject["name"][0].given[0] + patientObject["name"][0].family,
-          patientObject["gender"],
-          patientObject["active"],
-          patientAge,
-          patientObject["address"][0].country,
-          []);
-      });
+      smartClient.patient.read().then(p => this.parsePatientJSON(p));
 
       // Get all genomic variants attached to this patient.
       smartClient.patient.api.search({type: "Observation", query: {"category": "genomic-variant"}, count: 10})
-        .then(results => {
-          console.log("Successfully got variants!", results);
+        .then(results => this.parseGenomicVariants(results))
+        .fail(err => console.log("Couldn't query genomic variants error!", err));
 
-          if (!results.data.entry)
-            return;
-
-          if (results.data.entry.length > 0)
-            this.removeRow(0); // Start at the first index if we find other variants.
-
-          // For every variant.
-          let resultIndex = 0;
-          for (const result of results.data.entry)
-          {
-            console.log("Will now add " + result.resource.code.text);
-            this.selectorService.search(result.resource.code.text).subscribe(variants =>
-            {
-              if (variants.length === 0)
-              {
-                console.log("NOT GOOD: Couldn't find any search results for " + result.resource.code.text);
-                return;
-              }
-
-              // Add the first search result to the list (the one with the correct HGVS ID).
-              console.log("Adding", variants[0]);
-
-              this.selectorService.getByReference(variants[0])
-                .subscribe(variant => {
-                  const newWrapper = new VariantWrapper(resultIndex, variant);
-                  if (this.variants.length === resultIndex) {
-                    this.variants.push(newWrapper);
-                  } else {
-                    this.variants[resultIndex] = newWrapper;
-                  }
-                  resultIndex++;
-                });
-            });
-          }
-        })
-        .fail(err => {
-          console.log("Couldn't query genomic variants error!", err);
-        });
-
+      // Get all conditions for this patient.
       smartClient.patient.api.search({type: "Condition"})
-        .then(results => {
-          console.log("Got patient conditions:", results);
-
-          if (!isNullOrUndefined(results.data.entry) && results.data.entry.length > 0) {
-            for (const entry of results.data.entry) {
-              if (!isNullOrUndefined(entry.resource)) {
-                if (!isNullOrUndefined(entry.resource.code)) {
-                  if (!isNullOrUndefined(entry.resource.code.text)) {
-                    this.patient.conditions.push(entry.resource.code.text);
-                    console.log("Added " + entry.resource.code.text);
-                  }
-                }
-              }
-            }
-          }
-        })
+        .then(results => this.parsePatientConditions(results))
         .fail(err => {
           console.log("The query for patient conditions failed!", err);
         });
     });
+
+    // Or since this is Sync4CT, we want to check whether it's possible to just query straight from the Open FHIR endpoint.
+    USE_S4S_Sample.subscribe(shouldUse =>
+    {
+      if (!shouldUse)
+        return;
+
+      this.offerToLinkToEHRInstructions = false;
+
+      let selectedPatient = "";
+
+      // Get the available patients
+      this.http.get("https://portal.demo.syncfor.science/api/open-fhir/Patient")
+        .subscribe(patientsJSON =>
+        {
+          const patients: string[] = [];
+
+          const patientsList: Object = patientsJSON;
+          if (isNullOrUndefined(patientsList["entry"]))
+            return;
+          patientsList["entry"].forEach(patient => {
+            patients.push(patient.resource.id);
+          });
+
+          selectedPatient = prompt("Please select patient from " + patients.join(", "));
+
+          if (selectedPatient === "")
+            return;
+
+          // Once patient's been selected, do all the data reception stuff for him/her!
+          this.http.get("https://portal.demo.syncfor.science/api/open-fhir/Patient/" + selectedPatient)
+            .subscribe(patientJSON => this.parsePatientJSON(patientJSON));
+        });
+
+      console.log("Should have chosen");
+    });
+  }
+
+  /**
+   * Parses the patient JSON (either from SMART or the S4S sample patient.
+   * @param {Object} patientJSON
+   */
+  parsePatientJSON(patientJSON: Object): void
+  {
+    // Raw JSON for the patient.
+    console.log("Patient JSON is is ", patientJSON);
+
+    // Figure out patient age.
+    let patientAge = -1;
+    if (patientJSON["birthDate"] && patientJSON["active"])
+    {
+      const birthDateValues = patientJSON["birthDate"].split("-");
+      const timeDiff = Math.abs(Date.now() - new Date(parseInt(birthDateValues[0]), parseInt(birthDateValues[1]), parseInt(birthDateValues[2])).getTime());
+      // Used Math.floor instead of Math.ceil so 26 years and 140 days would be considered as 26, not 27.
+      patientAge = Math.floor((timeDiff / (1000 * 3600 * 24)) / 365);
+    }
+
+    // Construct the patient object.
+    this.patient = new Patient(
+      patientJSON,
+      patientJSON["name"][0].given[0] + " " + patientJSON["name"][0].family,
+      patientJSON["gender"],
+      patientJSON["active"],
+      patientAge,
+      patientJSON["address"][0].country,
+      []);
+  }
+
+  /**
+   * Parses the variants obtained by querying for genomic-variants.
+   * @param {Object} results
+   */
+  parseGenomicVariants(results: Object): void
+  {
+    console.log("Successfully got variants!", results);
+
+    if (!results["data"].entry)
+      return;
+
+    if (results["data"].entry.length > 0)
+      this.removeRow(0); // Start at the first index if we find other variants.
+
+    // For every variant.
+    let resultIndex = 0;
+    for (const result of results["data"].entry)
+    {
+      console.log("Will now add " + result.resource.code.text);
+      this.selectorService.search(result.resource.code.text).subscribe(variants =>
+      {
+        if (variants.length === 0)
+        {
+          console.log("NOT GOOD: Couldn't find any search results for " + result.resource.code.text);
+          return;
+        }
+
+        // Add the first search result to the list (the one with the correct HGVS ID).
+        console.log("Adding", variants[0]);
+
+        this.selectorService.getByReference(variants[0])
+          .subscribe(variant => {
+            const newWrapper = new VariantWrapper(resultIndex, variant);
+            if (this.variants.length === resultIndex) {
+              this.variants.push(newWrapper);
+            } else {
+              this.variants[resultIndex] = newWrapper;
+            }
+            resultIndex++;
+          });
+      });
+    }
+  }
+
+  /**
+   * Parses the Condition resources of the patient.
+   * @param {Object} conditionsJSON
+   */
+  parsePatientConditions(conditionsJSON: Object): void
+  {
+    console.log("Got patient conditions:", conditionsJSON);
+
+    if (!isNullOrUndefined(conditionsJSON["data"].entry) && conditionsJSON["data"].entry.length > 0) {
+      for (const entry of conditionsJSON["data"].entry) {
+        if (!isNullOrUndefined(entry.resource)) {
+          if (!isNullOrUndefined(entry.resource.code)) {
+            if (!isNullOrUndefined(entry.resource.code.text)) {
+              this.patient.conditions.push(entry.resource.code.text);
+              console.log("Added " + entry.resource.code.text);
+            }
+          }
+        }
+      }
+    }
+
   }
 
   // Row management.
