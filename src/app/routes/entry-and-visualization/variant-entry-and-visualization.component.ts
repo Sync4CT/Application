@@ -6,7 +6,6 @@ import { trigger, state, style, animate, transition } from "@angular/animations"
 import { Router } from "@angular/router";
 import { isNullOrUndefined } from "util";
 import {Patient} from "./patient/patient";
-import {USE_S4S_Sample} from "../../universal-components/launch-from-s4s.component";
 import {HttpClient} from "@angular/common/http";
 
 export class VariantWrapper
@@ -36,9 +35,7 @@ export class VariantWrapper
       <div id="suggestEHRLink" *ngIf="offerToLinkToEHRInstructions">
         <div id="suggestions">
           <img src="/assets/entry-and-visualization/info-icon.png">
-          <p class="thinFont1">You don't seem to be connected to an EHR! <a href="javascript:void(0)"
-                                                                            (click)="routeToInstructions()">Learn how
-            here.</a></p>
+          <p class="thinFont1">You don't seem to be connected to an EHR! <a href="javascript:void(0)" (click)="routeToInstructions()">Learn how here.</a></p>
         </div>
         <button class="btn btn-danger" (click)="offerToLinkToEHRInstructions = false">X</button>
       </div>
@@ -106,6 +103,11 @@ export class VariantWrapper
         </ngb-tab>
 
       </ngb-tabset>
+    </div>
+
+    <!-- Whether to use Sync4Science patient data -->
+    <div id="bottomRight" *ngIf="!usingS4S">
+      <input type="button" class="btn btn-primary" (click)="useS4S()" value="Use S4S Data">
     </div>
   `,
   styles: [`
@@ -263,6 +265,16 @@ export class VariantWrapper
       width: 10px;
       margin: 10px;
     }
+    
+    #bottomRight {
+      display: block;
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      z-index: 50;
+      background-color: black;
+      border-radius: 25px;
+    }
   `],
   animations: [
     trigger("drawerAnimation", [
@@ -288,6 +300,40 @@ export class VariantEntryAndVisualizationComponent implements OnInit
   // Depends on whether we are already linked to the EHR.
   offerToLinkToEHRInstructions = true;
   autosync: boolean = true;
+
+  // Whether to use the S4S thing.
+  usingS4S: boolean = false;
+  useS4S(): void
+  {
+    this.usingS4S = true;
+
+    this.offerToLinkToEHRInstructions = false;
+
+    let selectedPatient = "";
+
+    // Get the available patients
+    this.http.get("https://portal.demo.syncfor.science/api/open-fhir/Patient")
+      .subscribe(patientsJSON =>
+      {
+        const patients: string[] = [];
+
+        const patientsList: Object = patientsJSON;
+        if (isNullOrUndefined(patientsList["entry"]))
+          return;
+        patientsList["entry"].forEach(patient => {
+          patients.push(patient.resource.id);
+        });
+
+        selectedPatient = prompt("Please select patient from " + patients.join(", "));
+
+        if (selectedPatient === "")
+          return;
+
+        // Once patient's been selected, do all the data reception stuff for him/her!
+        this.http.get("https://portal.demo.syncfor.science/api/open-fhir/Patient/" + selectedPatient)
+          .subscribe(patientJSON => this.parsePatientJSON(patientJSON));
+      });
+  }
 
   /**
    * Once initialized, we'll init the Patient, his/her conditions, and everything else that we need prior to allowing
@@ -321,42 +367,6 @@ export class VariantEntryAndVisualizationComponent implements OnInit
         .fail(err => {
           console.log("The query for patient conditions failed!", err);
         });
-    });
-
-    // Or since this is Sync4CT, we want to check whether it's possible to just query straight from the Open FHIR endpoint.
-    USE_S4S_Sample.subscribe(shouldUse =>
-    {
-      if (!shouldUse)
-        return;
-
-      this.offerToLinkToEHRInstructions = false;
-
-      let selectedPatient = "";
-
-      // Get the available patients
-      this.http.get("https://portal.demo.syncfor.science/api/open-fhir/Patient")
-        .subscribe(patientsJSON =>
-        {
-          const patients: string[] = [];
-
-          const patientsList: Object = patientsJSON;
-          if (isNullOrUndefined(patientsList["entry"]))
-            return;
-          patientsList["entry"].forEach(patient => {
-            patients.push(patient.resource.id);
-          });
-
-          selectedPatient = prompt("Please select patient from " + patients.join(", "));
-
-          if (selectedPatient === "")
-            return;
-
-          // Once patient's been selected, do all the data reception stuff for him/her!
-          this.http.get("https://portal.demo.syncfor.science/api/open-fhir/Patient/" + selectedPatient)
-            .subscribe(patientJSON => this.parsePatientJSON(patientJSON));
-        });
-
-      console.log("Should have chosen");
     });
   }
 

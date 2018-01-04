@@ -25,7 +25,6 @@ import { ClassificationsModalComponent } from "./routes/entry-and-visualization/
 import { VariantEntryAndVisualizationComponent } from "./routes/entry-and-visualization/variant-entry-and-visualization.component";
 import { LandingPageComponent } from "./routes/home/home.component";
 import { GithubForkUsComponent } from "./universal-components/github-fork-us.component";
-import { LaunchFromS4SComponent } from "./universal-components/launch-from-s4s.component";
 
 // Services
 import { SMARTReferenceService } from "./smart-initialization/smart-reference.service";
@@ -65,8 +64,7 @@ import { DBAnalysisComponent } from "./routes/db-analysis/db-analysis.component"
     EHRInstructionsComponent,
     LandingPageComponent,
     GithubForkUsComponent,
-    DBAnalysisComponent,
-    LaunchFromS4SComponent
+    DBAnalysisComponent
   ],
   entryComponents: [
     DrugDetailsModalComponent, // Since it enters later on in the flow.
