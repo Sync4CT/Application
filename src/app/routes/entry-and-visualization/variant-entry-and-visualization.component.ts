@@ -68,13 +68,6 @@ export class VariantWrapper
 
     <div id="contentWrapper">
       <ngb-tabset>
-
-        <ngb-tab title="Clinical Trial Search">
-          <ng-template ngbTabContent>
-            <clinical-trials-search [patient]="patient" [variants]="variants"></clinical-trials-search>
-          </ng-template>
-        </ngb-tab>
-
         <ngb-tab title="Edit Associated Variants">
           <ng-template ngbTabContent>
 
@@ -101,6 +94,12 @@ export class VariantWrapper
                 </div>
               </div>
             </div>
+          </ng-template>
+        </ngb-tab>
+        
+        <ngb-tab title="Clinical Trial Search">
+          <ng-template ngbTabContent>
+            <clinical-trials-search [patient]="patient" [variants]="variants"></clinical-trials-search>
           </ng-template>
         </ngb-tab>
 

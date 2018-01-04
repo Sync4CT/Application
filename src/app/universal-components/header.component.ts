@@ -7,7 +7,7 @@ import {NavigationEnd, Router} from "@angular/router";
     <div id="greyBackground"></div>
 
     <div id="container">
-      <img src="/assets/S4CTWhiteLogo.png">
+      <img src="/assets/S4CTLogo.svg">
 
       <div id="routingOptions">
         <div class="routeOption {{currentRoute === '/home' ? 'selectedRoute' : 'unselectedRoute'}}" (click)="routeTo('home')">
@@ -42,7 +42,7 @@ import {NavigationEnd, Router} from "@angular/router";
       background-color: #2f2f2f;
       width: 100%;
 
-      padding-left: 30px;
+      padding-left: 10px;
 
       box-shadow: 0 2px 4px #1f1f1f;
 
