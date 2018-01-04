@@ -4,7 +4,7 @@ import {Component} from "@angular/core";
   selector: "launch-from-s4s",
   template: `
     <div>
-      <input type="button" class="btn btn-default" (click)="launchFromS4S()" value="Launch from S4S">
+      <input type="button" class="btn btn-default" (click)="launchFromS4S()" value="Launch from S4S (broken)">
     </div>
   `,
   styles: [`
